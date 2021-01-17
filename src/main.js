@@ -9,8 +9,8 @@ import BrowseLibrary from "./components/BrowseLibrary.vue";
 import Wishlist from "./components/Wishlist.vue";
 import BooksOnLoan from "./components/BooksOnLoan.vue";
 import PayDuedBooks from "./components/PayDuedBooks.vue";
-import LibrarianAdmin from "./components/LibrarianAdmin.vue";
 import LibrarianOrganizeLoans from "./components/LibrarianOrganizeLoans.vue";
+import Login from "./components/auth/login.vue";
 
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.css'
@@ -26,45 +26,62 @@ Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 
 Vue.use(VueRouter);
-
 const routes = [
   {
     path: "",
-    component: MainDashboard,
+    component: MainDashboard
+  }, {
+    path: "/login",
+    name: "login",
+    component: Login,
+    meta: {
+      public: true,
+    },
   }, {
     path: "/browse",
-    component: BrowseLibrary,
+    name: "browse",
+    component: BrowseLibrary
   }, {
     path: "/wishlist",
-    component: Wishlist,
+    component: Wishlist
   }, {
     path: "/booksonloan",
-    component: BooksOnLoan,
+    component: BooksOnLoan
   }, {
     path: "/duedBooks",
-    component: PayDuedBooks,
-  }, {
-    path: "/librarianadmin",
-    component: LibrarianAdmin,
+    component: PayDuedBooks
   }, {
     path: "/organizeloans",
-    component: LibrarianOrganizeLoans,
+    component: LibrarianOrganizeLoans
   }, {
     path: "/organizereturns",
-    component: LibrarianOrganizeLoans,
+    component: LibrarianOrganizeLoans
   }, {
     path: "/loanreturnhistory",
-    component: LibrarianOrganizeLoans,
+    component: LibrarianOrganizeLoans
   }, {
     path: "*",
     redirect: '/',
-    component: MainDashboard,
+    component: MainDashboard
   },
 ];
-
 const router = new VueRouter({
   routes,
   mode: "history",
+  base: process.env.BASE_URL,
+});
+router.beforeEach((to, from, next) => {
+  if (to.path != '/login' && !localStorage.getItem('loginstatus')) {
+    next({
+      name: 'login'
+    });
+  } else if (to.path == '/login' && localStorage.getItem('loginstatus')) {
+    next({
+      path: ""
+    });
+  } else {
+    next();
+  }
 });
 
 new Vue({

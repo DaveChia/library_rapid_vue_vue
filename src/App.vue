@@ -1,13 +1,14 @@
 <template>
   <div id="app">
-    <NavHeader @rolechanged="rolechangedTriggered" />
-    <div id="app-wrapper">
-      <SideBar
-        :duedbooksdata="this.duedbooksdata.duedbookscount"
-        :currentuser="this.currentUser"
-      />
-      <AppContent />
-    </div>
+       <NavHeader v-if="authtoken" @rolechanged="rolechangedTriggered" />
+      <div id="app-wrapper">
+        <SideBar
+          :duedbooksdata="this.duedbooksdata.duedbookscount"
+          :currentuser="this.currentUser"
+          v-if="authtoken"
+        />
+        <AppContent />
+      </div>
   </div>
 </template>
 
@@ -17,6 +18,7 @@
 import NavHeader from "./components/NavHeader.vue";
 import SideBar from "./components/SideBar.vue";
 import AppContent from "./components/AppContent.vue";
+import { clearSessionInstance } from '../src/services/utility'
 import axios from "axios";
 
 export default {
@@ -28,6 +30,7 @@ export default {
   },
   data() {
     return {
+      authtoken:localStorage.getItem('loginstatus'),
       currentUser: localStorage.getItem("currentUserType")
         ? localStorage.getItem("currentUserType")
         : "User",
@@ -38,27 +41,40 @@ export default {
   },
   mounted() {
     this.getduedbooks();
-    // localStorage.removeItem("currentUserType");
   },
   methods: {
     rolechangedTriggered($event) {
       this.currentUser = $event;
     },
     getduedbooks() {
-      axios
-        .get("http://localhost:8000/api/getduedlist", {
+      if(localStorage.getItem('activeuserid')){
+
+      const instance = axios.create({
+        withCredentials: true,
+      });
+      instance
+        .get("http://127.0.0.1:8000/api/getduedlist", {
           params: {
-            userid: 1,
+            userid: localStorage.getItem('activeuserid'),
           },
         })
         .then((response) => {
-          this.duedbooksdata = response.data;
+          console.log(response);
+          if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+            this.duedbooksdata = response.data;
+          }
         })
         .catch((error) => {
           if (error.response.status === 422) {
             this.errors = error.response.data.errors || {};
           }
         });
+      }
+    
     },
   },
 };

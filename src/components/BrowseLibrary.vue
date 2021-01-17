@@ -101,6 +101,7 @@
 
 <script>
 import axios from "axios";
+import { clearSessionInstance } from '../services/utility'
 
 export default {
   name: "BrowseLibrary",
@@ -135,13 +136,24 @@ export default {
       this.$refs["my-modal"].hide();
     },
     getallbooklist() {
+      const instance = axios.create({
+        withCredentials: true,
+      });
+
       this.showPage = false;
-      axios
-        .get("http://localhost:8000/api/getbooklist")
+      instance
+        .get("http://127.0.0.1:8000/api/getbooklist")
         .then((response) => {
-          console.log(response);
-          this.items = response.data;
-          this.showPage = true;
+
+          if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+            this.items = response.data;
+            this.showPage = true;
+          }
+    
         })
         .catch((error) => {
           if (error.response.status === 422) {
@@ -149,38 +161,46 @@ export default {
           }
         });
     },
-    getbook() {
-      axios
-        .get("http://localhost:8000/api/getbook", {
-          params: {
-            bookid: 12345,
-          },
-        })
-        .then((response) => {
-          this.items = response.data;
-        })
-        .catch((error) => {
-          if (error.response.status === 422) {
-            this.errors = error.response.data.errors || {};
-          }
-        });
-    },
+    // getbook() {
+    //   axios
+    //     .get("http://127.0.0.1:8000/api/getbook", {
+    //       params: {
+    //         bookid: 12345,
+    //       },
+    //     })
+    //     .then((response) => {
+    //       this.items = response.data;
+    //     })
+    //     .catch((error) => {
+    //       if (error.response.status === 422) {
+    //         this.errors = error.response.data.errors || {};
+    //       }
+    //     });
+    // },
     loanbook() {
       this.showLoanButton = false;
-      axios
-        .post("http://localhost:8000/api/loanbook", {
+      const instance = axios.create({
+        withCredentials: true,
+      });
+      instance
+        .post("http://127.0.0.1:8000/api/loanbook", {
           bookid: this.modalbookid,
-          userid: 1,
+          userid: localStorage.getItem('activeuserid'),
         })
         .then((response) => {
-          console.log(response);
-          if (response.data.loanresult === true) {
-            this.getallbooklist();
-            alert(
-              "Book Reserved Successfully, please proceed to collect our book."
-            );
-          } else {
-            alert(response.data.loanresult);
+          if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+            if (response.data.loanresult === true) {
+              this.getallbooklist();
+              alert(
+                "Book Reserved Successfully, please proceed to collect our book."
+              );
+            } else {
+              alert(response.data.loanresult);
+            }
           }
         })
         .catch((error) => {
@@ -192,7 +212,7 @@ export default {
     searchbooks() {
       this.showPage = false;
       axios
-        .get("http://localhost:8000/api/searchbooks", {
+        .get("http://127.0.0.1:8000/api/searchbooks", {
           params: {
             bookname: this.searchbookname,
             bookgenre: this.searchgenrename,
@@ -207,6 +227,11 @@ export default {
             this.errors = error.response.data.errors || {};
           }
         });
+    },
+    getCookie (name) {  /// Retrieve cookie function
+      const match = document.cookie.match(new RegExp(name + '=([^;]+)'));
+      if (match) return match[1];
+      return
     },
   },
   data() {

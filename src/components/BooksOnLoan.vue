@@ -102,6 +102,7 @@
 
 <script>
 import axios from "axios";
+import { clearSessionInstance } from '../services/utility'
 
 export default {
   name: "BooksOnLoans",
@@ -130,19 +131,28 @@ export default {
       this.$refs["my-modal"].toggle("#toggle-btn");
     },
     getloanbooklist() {
-      axios
+      const instance = axios.create({
+        withCredentials: true,
+      });
+
+      instance
         .get(
-          // "http://www.merchant.inspired.sg/user/login_register.php",
-          "http://localhost:8000/api/getloanlist",
+          "http://127.0.0.1:8000/api/getloanlist",
           {
             params: {
-              userid: 1,
+              userid: localStorage.getItem('activeuserid'),
             },
           }
         )
         .then((response) => {
-          this.items = response.data.loanbooksdata;
-          this.showPage = true;
+           if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+            this.items = response.data.loanbooksdata;
+            this.showPage = true;
+          }
         })
         .catch((error) => {
           if (error.response.status === 422) {

@@ -119,6 +119,7 @@
 <script>
 import axios from "axios";
 import { bus } from "../main";
+import { clearSessionInstance } from '../services/utility'
 
 export default {
   name: "LibrarianOrganizeLoans",
@@ -168,8 +169,7 @@ export default {
   },
   methods: {
     updateuser() {
-      console.log(this.bookstobeupdated);
-
+ 
       if (this.bookstobeupdated.length > 0) {
         switch (this.pagetype) {
           case "Organize Loans":
@@ -184,18 +184,27 @@ export default {
       }
     },
     updatereturn() {
-      axios
-        .post("http://localhost:8000/api/updatereturn", {
-          userid: 1,
+      const instance = axios.create({
+        withCredentials: true,
+      });
+      instance
+        .post("http://127.0.0.1:8000/api/updatereturn", {
+          userid: localStorage.getItem('activeuserid'),
           bookids: this.bookstobeupdated,
         })
         .then((response) => {
-          if (response.data.results) {
-            alert("Books return updated successfully.");
-          } else {
-            alert("Books return update failed.");
+          if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+            if (response.data.results) {
+              alert("Books return updated successfully.");
+            } else {
+              alert("Books return update failed.");
+            }
+            this.$router.go();
           }
-          this.$router.go();
         })
         .catch((error) => {
           if (error.response.status === 422) {
@@ -204,18 +213,28 @@ export default {
         });
     },
     updateloan() {
-      axios
-        .post("http://localhost:8000/api/updateloan", {
-          userid: 1,
+      const instance = axios.create({
+        withCredentials: true,
+      });
+
+      instance
+        .post("http://127.0.0.1:8000/api/updateloan", {
+          userid: this.searchuserid,
           bookids: this.bookstobeupdated,
         })
         .then((response) => {
-          if (response.data.results) {
-            alert("Books collection updated successfully.");
-          } else {
-            alert("Books collection update failed.");
+          if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+            if (response.data.results) {
+              alert("Books collection updated successfully.");
+            } else {
+              alert("Books collection update failed.");
+            }
+            this.$router.go();
           }
-          this.$router.go();
         })
         .catch((error) => {
           if (error.response.status === 422) {
@@ -229,43 +248,50 @@ export default {
     onRowSelected(selecteditem) {
       this.bookstobeupdated = [];
       selecteditem.forEach((element) => {
-        console.log(element);
         this.bookstobeupdated.push(element.loanid);
       });
-      console.log(this.bookstobeupdated);
-      console.error(this.bookstobeupdated.length);
     },
     searchuser() {
       this.showPage = false;
-      let loantype;
+      let loantypeinput;
       switch (this.$router.currentRoute.path) {
         case "/organizeloans":
-          loantype = "loan";
+          loantypeinput = "loan";
           break;
         case "/organizereturns":
-          loantype = "return";
+          loantypeinput = "return";
           break;
         case "/loanreturnhistory":
-          loantype = "history";
+          loantypeinput = "history";
           break;
       }
-      axios
-        .get("http://localhost:8000/api/organizeloans", {
+
+      const instance = axios.create({
+        withCredentials: true,
+      });
+
+      instance
+        .get("http://127.0.0.1:8000/api/organizeloans", {
           params: {
             userid: this.searchuserid,
-            loantype: loantype,
+            loantype: loantypeinput,
           },
         })
         .then((response) => {
-          this.searchuserid = 0;
-          if (response.data.loanresult.length > 0) {
-            this.items = response.data.loanresult;
-            this.username = response.data.userresult.username;
-          } else {
-            this.items = [];
-            this.username = "";
+          if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+            if (response.data.loanresult.length > 0) {
+              this.items = response.data.loanresult;
+              this.username = response.data.userresult.name;
+            } else {
+              this.items = [];
+              this.username = "";
+            }
+            this.showPage = true;
           }
-          this.showPage = true;
         })
         .catch((error) => {
           if (error.response.status === 422) {

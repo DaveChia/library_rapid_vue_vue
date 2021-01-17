@@ -11,7 +11,7 @@
             <template #button-content>
               <em>{{ currentUserType }}</em>
             </template>
-            <b-dropdown-item>Profile</b-dropdown-item>
+            <!-- <b-dropdown-item>Profile</b-dropdown-item> -->
             <b-dropdown-item
               v-if="
                 librarianCapability &&
@@ -30,7 +30,7 @@
               v-on:click="navFuntions(currentUserType)"
               >Switch Role to Librarian</b-dropdown-item
             >
-            <b-dropdown-item>Sign Out</b-dropdown-item>
+            <b-dropdown-item v-on:click="signout()">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
@@ -40,6 +40,9 @@
 
 <script>
 import { busChangeUserType } from "../main";
+import { clearSessionInstance } from '../services/utility'
+import axios from "axios";
+
 export default {
   name: "NavHeader",
   created() {
@@ -59,6 +62,26 @@ export default {
     };
   },
   methods: {
+    signout() {
+      const instance = axios.create({
+        withCredentials: true,
+      });
+
+     instance
+        .post("http://127.0.0.1:8000/api/auth/logout", {
+          userid: localStorage.getItem('activeuserid'),
+        })
+        .then(() => {
+          clearSessionInstance();
+          alert('Log out successfully');
+          this.$router.go();
+        })
+        .catch((error) => {
+          if (error.response.status === 422) {
+            this.errors = error.response.data.errors || {};
+          }
+        });
+    },
     navFuntions: function (inputType) {
       switch (inputType) {
         case "User":

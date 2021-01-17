@@ -8,7 +8,7 @@
           src="https://placekitten.com/300/300"
         ></b-avatar>
       </div>
-      <p>Welcome, Dave!</p>
+      <p>{{activeusername}}</p>
       <p />
       <b-list-group style="max-width: 300px">
         <b-list-group-item
@@ -110,7 +110,7 @@
           ></b-avatar>
           <span class="mr-auto mr-tab-custom-title">Organize Users</span>
         </b-list-group-item> -->
-        <b-list-group-item
+        <!-- <b-list-group-item
           v-on:click="sidebarNavigate('librarianadmin', $event)"
           v-if="
             librarianCapability &&
@@ -125,7 +125,7 @@
             class="mr-3"
           ></b-avatar>
           <span class="mr-auto mr-tab-custom-title">Administration</span>
-        </b-list-group-item>
+        </b-list-group-item> -->
       </b-list-group>
     </div>
   </div>
@@ -200,6 +200,7 @@ export default {
   },
   data() {
     return {
+      activeusername: localStorage.getItem('activeusername'),
       sidebaractive: [true, true, true, true, true, true, true, true],
       librarianCapability: false,
       librarianCanOrganizeBooksCapability: false,

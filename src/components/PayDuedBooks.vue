@@ -17,6 +17,7 @@
 
 <script>
 import axios from "axios";
+import { clearSessionInstance } from '../services/utility'
 
 export default {
   name: "PayDuedBooks",
@@ -26,16 +27,25 @@ export default {
   },
   methods: {
     getduedbooks() {
-      axios
-        .get("http://localhost:8000/api/getduedlist", {
+      const instance = axios.create({
+        withCredentials: true,
+      });
+
+      instance
+        .get("http://127.0.0.1:8000/api/getduedlist", {
           params: {
-            userid: 1,
+            userid: localStorage.getItem('activeuserid'),
           },
         })
         .then((response) => {
-          console.error(response);
-          this.totaloverduedcharges = response.data.overduecharges;
+          if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+             this.totaloverduedcharges = response.data.overduecharges;
           this.showPage = true;
+          }
         })
         .catch((error) => {
           if (error.response.status === 422) {
@@ -44,17 +54,26 @@ export default {
         });
     },
     paydues() {
-      axios
-        .post("http://localhost:8000/api/paydues", {
-          userid: 1,
+      const instance = axios.create({
+        withCredentials: true,
+      });
+      instance
+        .post("http://127.0.0.1:8000/api/paydues", {
+          userid: localStorage.getItem('activeuserid'),
         })
         .then((response) => {
-          if (response.data.results) {
-            alert("Fees paid successfully.");
-          } else {
-            alert("Something went wrong, please refresh page and try again.");
-          }
-          this.$router.go();
+          if(response.data.error){
+            clearSessionInstance();
+            alert('Session Expired, please log in again.');
+            this.$router.go();
+          }else{
+            if (response.data.results) {
+              alert("Fees paid successfully.");
+            } else {
+              alert("Something went wrong, please refresh page and try again.");
+            }
+            this.$router.go();
+            }
         })
         .catch((error) => {
           if (error.response.status === 422) {
