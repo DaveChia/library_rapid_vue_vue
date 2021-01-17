@@ -5,11 +5,10 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import VueRouter from "vue-router";
 import MainDashboard from "./components/MainDashboard.vue";
-import BrowseLibrary from "./components/BrowseLibrary.vue";
-import Wishlist from "./components/Wishlist.vue";
-import BooksOnLoan from "./components/BooksOnLoan.vue";
-import PayDuedBooks from "./components/PayDuedBooks.vue";
-import LibrarianOrganizeLoans from "./components/LibrarianOrganizeLoans.vue";
+import BrowseLibrary from "./components/user/BrowseLibrary";
+import BooksOnLoan from "./components/user/BooksOnLoan";
+import PayDuedBooks from "./components/user/PayDuedBooks";
+import LibrarianOrganizeLoans from "./components/librarian/LibrarianOrganizeLoans.vue";
 import Login from "./components/auth/login.vue";
 
 // Import Bootstrap an BootstrapVue CSS files (order is important)
@@ -25,6 +24,7 @@ Vue.config.productionTip = false
 
 Vue.use(VueAxios, axios)
 
+// Vue Router
 Vue.use(VueRouter);
 const routes = [
   {
@@ -41,9 +41,6 @@ const routes = [
     path: "/browse",
     name: "browse",
     component: BrowseLibrary
-  }, {
-    path: "/wishlist",
-    component: Wishlist
   }, {
     path: "/booksonloan",
     component: BooksOnLoan
@@ -70,6 +67,8 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
 });
+
+// View route authentications
 router.beforeEach((to, from, next) => {
   if (to.path != '/login' && !localStorage.getItem('loginstatus')) {
     next({
@@ -89,5 +88,6 @@ new Vue({
   render: h => h(App),
 }).$mount('#app')
 
+//  Global Bus Broastcast events
 export const bus = new Vue();
 export const busChangeUserType = new Vue();

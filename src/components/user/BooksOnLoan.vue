@@ -14,9 +14,9 @@
         borderless
         sticky-header="calc(100vh - 56px - 120px)"
       >
-        <!-- A virtual column -->
+
         <template #cell(currentstock)="data">
-          {{ data.value > 0 ? "Yes" : "No" }}
+          {{ data.value }}
         </template>
 
         <template #cell(loanstatus)="data">
@@ -102,7 +102,7 @@
 
 <script>
 import axios from "axios";
-import { clearSessionInstance } from '../services/utility'
+import { clearSessionInstance } from '../../services/utility'
 
 export default {
   name: "BooksOnLoans",

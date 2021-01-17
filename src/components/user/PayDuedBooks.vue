@@ -8,24 +8,23 @@
       <b-button
         @click="paydues"
         v-if="totaloverduedcharges !== '0.00'"
-        variant="primary"
-        >Pay Fees</b-button
-      >
+        variant="primary">Pay Fees</b-button>
     </b-jumbotron>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import { clearSessionInstance } from '../services/utility'
+import { clearSessionInstance } from '../../services/utility'
 
 export default {
   name: "PayDuedBooks",
   mounted() {
     this.getduedbooks();
-    // localStorage.removeItem("currentUserType");
   },
   methods: {
+
+    // Trigger api to get dued books info
     getduedbooks() {
       const instance = axios.create({
         withCredentials: true,
@@ -53,6 +52,8 @@ export default {
           }
         });
     },
+
+    // Trigger api to pay outstanding dues.
     paydues() {
       const instance = axios.create({
         withCredentials: true,

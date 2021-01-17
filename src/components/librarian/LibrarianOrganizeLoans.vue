@@ -8,26 +8,20 @@
         <b-navbar toggleable="lg" type="dark" variant="info">
           <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav class="ml-auto">
-              <!--<h5 class="page-title">{{ pagetype }}</h5>-->
               <b-form-input
                 size="sm"
                 class="mr-sm-2"
                 placeholder="User ID"
-                v-on:input="useridInput"
-              ></b-form-input>
+                v-on:input="useridInput"></b-form-input>
               <b-button
                 @click="searchuser"
                 size="sm"
-                class="my-2 my-sm-0 submitbutton"
-                >Search</b-button
-              >
+                class="my-2 my-sm-0 submitbutton">Search</b-button>
               <b-button
                 @click="updateuser"
                 v-if="this.pagetype !== 'Loans and Returns History'"
                 size="sm"
-                class="my-2 my-sm-0 submitbutton"
-                >Update</b-button
-              >
+                class="my-2 my-sm-0 submitbutton">Update</b-button>
               <h3>{{ username }}</h3>
             </b-navbar-nav>
           </b-collapse>
@@ -44,14 +38,12 @@
         striped
         borderless
         sticky-header="calc(100vh - 56px - 120px)"
-        @row-selected="onRowSelected"
-      >
-        <!-- A virtual column -->
+        @row-selected="onRowSelected">
+        
         <template #cell(currentstock)="data">
           {{ data.value }}
         </template>
 
-        <!-- A custom formatted column -->
         <template #cell(name)="data">
           <b class="text-info">{{ data.value.last.toUpperCase() }}</b
           >, <b>{{ data.value.first }}</b>
@@ -99,7 +91,6 @@
           }}
         </template>
 
-        <!-- Optional default data cell scoped slot -->
         <template #cell(bookcoverimage)="data">
           <img v-bind:src="`${data.value}`" width="40" height="60" />
         </template>
@@ -118,8 +109,8 @@
 
 <script>
 import axios from "axios";
-import { bus } from "../main";
-import { clearSessionInstance } from '../services/utility'
+import { bus } from "../../main";
+import { clearSessionInstance } from '../../services/utility'
 
 export default {
   name: "LibrarianOrganizeLoans",
@@ -129,27 +120,24 @@ export default {
     },
   },
   mounted() {
-    switch (this.$router.currentRoute.path) {
-      case "/organizeloans":
-        this.pagetype = "Organize Loans";
-        this.activefield = this.fieldsloan;
-        break;
-      case "/organizereturns":
-        this.pagetype = "Organize Returns";
-        this.activefield = this.fieldsreturn;
-        break;
-      case "/loanreturnhistory":
-        this.pagetype = "Loans and Returns History";
-        this.activefield = this.fieldshistory;
-        break;
-    }
+ 
+    this.toggleorganizetype(this.$router.currentRoute.path.replace('/',''));
+
     setTimeout(() => {
       bus.$on("librarianorganizetypechanged", (data) => {
         this.pagetype = "";
         this.showPage = false;
         this.items = [];
+        this.toggleorganizetype(data);
+        this.showPage = true;
+      });
+    });
+  },
+  methods: {
+    //  Toggle form for librarian organization
+    toggleorganizetype(data){
 
-        switch (data) {
+      switch (data) {
           case "organizeloans":
             this.pagetype = "Organize Loans";
             this.activefield = this.fieldsloan;
@@ -163,13 +151,11 @@ export default {
             this.activefield = this.fieldshistory;
             break;
         }
-        this.showPage = true;
-      });
-    });
-  },
-  methods: {
+
+    },
+    //  Trigger updating user loan/borrowers record
     updateuser() {
- 
+
       if (this.bookstobeupdated.length > 0) {
         switch (this.pagetype) {
           case "Organize Loans":
@@ -183,7 +169,9 @@ export default {
         alert("Please select at least 1 record.");
       }
     },
+    //  Trigger api for borrowers to return books
     updatereturn() {
+        console.log('asdasdas');
       const instance = axios.create({
         withCredentials: true,
       });
@@ -212,6 +200,7 @@ export default {
           }
         });
     },
+    //  Trigger api for borrowers to loan books
     updateloan() {
       const instance = axios.create({
         withCredentials: true,
@@ -242,15 +231,20 @@ export default {
           }
         });
     },
+    //  Updates input form 
     useridInput($event) {
       this.searchuserid = $event;
     },
+
+    //  Update selected books
     onRowSelected(selecteditem) {
       this.bookstobeupdated = [];
       selecteditem.forEach((element) => {
         this.bookstobeupdated.push(element.loanid);
       });
     },
+
+    // Search and retrieve user records based on user id
     searchuser() {
       this.showPage = false;
       let loantypeinput;
@@ -312,8 +306,7 @@ export default {
       currentPage: 1,
       modalbooktitle: "title",
       activefield: [],
-      modalbookcoverimage:
-        "https://edit.org/images/cat/book-covers-big-2019101610.jpg",
+      modalbookcoverimage:"",
       selectMode: "multi",
       fieldsloan: [
         { key: "bookcoverimage", label: "" },
@@ -377,7 +370,6 @@ export default {
 }
 
 #left {
-  background-color: red;
   width: fit-content;
 }
 

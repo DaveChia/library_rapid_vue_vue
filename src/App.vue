@@ -13,8 +13,7 @@
 </template>
 
 <script>
-// import HelloWorld from "./components/HelloWorld.vue";
-// import Dashboard from "./components/Dashboard.vue";
+
 import NavHeader from "./components/NavHeader.vue";
 import SideBar from "./components/SideBar.vue";
 import AppContent from "./components/AppContent.vue";
@@ -35,31 +34,29 @@ export default {
         ? localStorage.getItem("currentUserType")
         : "User",
       duedbooksdata: [],
-      fields: {},
-      errors: {},
     };
   },
   mounted() {
     this.getduedbooks();
   },
   methods: {
+    // Trigger change user event
     rolechangedTriggered($event) {
       this.currentUser = $event;
     },
+
+    // Get all dued books list
     getduedbooks() {
       if(localStorage.getItem('activeuserid')){
+        const instance = axios.create({
+          withCredentials: true,
+        });
 
-      const instance = axios.create({
-        withCredentials: true,
-      });
-      instance
-        .get("http://127.0.0.1:8000/api/getduedlist", {
+        instance.get("http://127.0.0.1:8000/api/getduedlist", {
           params: {
             userid: localStorage.getItem('activeuserid'),
           },
-        })
-        .then((response) => {
-          console.log(response);
+        }).then((response) => {
           if(response.data.error){
             clearSessionInstance();
             alert('Session Expired, please log in again.');
@@ -67,16 +64,12 @@ export default {
           }else{
             this.duedbooksdata = response.data;
           }
-        })
-        .catch((error) => {
-          if (error.response.status === 422) {
-            this.errors = error.response.data.errors || {};
-          }
+        }).catch((error) => {
+          console.log(error);
         });
       }
-    
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -42,23 +42,14 @@
         @row-selected="onRowSelected"
         striped
         borderless
-        sticky-header="calc(100vh - 56px - 120px)"
-      >
-        <!-- A virtual column -->
+        sticky-header="calc(100vh - 56px - 120px)">
+
         <template
           #cell(currentstock)="data"
-          :class="darkMode ? 'dark-theme' : 'light-theme'"
-        >
-          {{ data.value > 0 ? "Yes" : "No" }}
+          :class="darkMode ? 'dark-theme' : 'light-theme'">
+          {{ data.value }}
         </template>
 
-        <!-- A custom formatted column -->
-        <template #cell(name)="data">
-          <b class="text-info">{{ data.value.last.toUpperCase() }}</b
-          >, <b>{{ data.value.first }}</b>
-        </template>
-
-        <!-- Optional default data cell scoped slot -->
         <template #cell(bookcoverimage)="data">
           <img v-bind:src="`${data.value}`" width="40" height="60" />
         </template>
@@ -88,9 +79,7 @@
               v-if="showLoanButton"
               block
               @click="loanbook"
-              variant="success"
-              >Loan Book</b-button
-            >
+              variant="success">Loan Book</b-button>
           </b-col>
         </b-row>
         <b-button class="mt-3" block @click="hideModal">Close</b-button>
@@ -101,7 +90,7 @@
 
 <script>
 import axios from "axios";
-import { clearSessionInstance } from '../services/utility'
+import { clearSessionInstance } from '../../services/utility'
 
 export default {
   name: "BrowseLibrary",
@@ -114,12 +103,13 @@ export default {
     },
   },
   methods: {
-    booknameInput($event) {
-      this.searchbookname = $event;
-    },
-    bookgenreInput($event) {
-      this.searchgenrename = $event;
-    },
+    // booknameInput($event) {
+    //   this.searchbookname = $event;
+    // },
+    // bookgenreInput($event) {
+    //   this.searchgenrename = $event;
+    // },
+    // Trigger event when books are selected
     onRowSelected(item) {
       this.modalbooktitle = item[0]["bookname"];
       this.modalbookcoverimage = item[0]["bookcoverimage"];
@@ -129,12 +119,15 @@ export default {
       }
       this.showModal(item[0]);
     },
+    //  Show book info in modal
     showModal() {
       this.$refs["my-modal"].show();
     },
+    //  Hide book info in modal
     hideModal() {
       this.$refs["my-modal"].hide();
     },
+    //  Trigger api to get all books in library
     getallbooklist() {
       const instance = axios.create({
         withCredentials: true,
@@ -144,7 +137,6 @@ export default {
       instance
         .get("http://127.0.0.1:8000/api/getbooklist")
         .then((response) => {
-
           if(response.data.error){
             clearSessionInstance();
             alert('Session Expired, please log in again.');
@@ -177,6 +169,7 @@ export default {
     //       }
     //     });
     // },
+    // Trigger api to reserve selected book
     loanbook() {
       this.showLoanButton = false;
       const instance = axios.create({
@@ -209,30 +202,25 @@ export default {
           }
         });
     },
-    searchbooks() {
-      this.showPage = false;
-      axios
-        .get("http://127.0.0.1:8000/api/searchbooks", {
-          params: {
-            bookname: this.searchbookname,
-            bookgenre: this.searchgenrename,
-          },
-        })
-        .then((response) => {
-          this.items = response.data.searchresults;
-          this.showPage = true;
-        })
-        .catch((error) => {
-          if (error.response.status === 422) {
-            this.errors = error.response.data.errors || {};
-          }
-        });
-    },
-    getCookie (name) {  /// Retrieve cookie function
-      const match = document.cookie.match(new RegExp(name + '=([^;]+)'));
-      if (match) return match[1];
-      return
-    },
+    // searchbooks() {
+    //   this.showPage = false;
+    //   axios
+    //     .get("http://127.0.0.1:8000/api/searchbooks", {
+    //       params: {
+    //         bookname: this.searchbookname,
+    //         bookgenre: this.searchgenrename,
+    //       },
+    //     })
+    //     .then((response) => {
+    //       this.items = response.data.searchresults;
+    //       this.showPage = true;
+    //     })
+    //     .catch((error) => {
+    //       if (error.response.status === 422) {
+    //         this.errors = error.response.data.errors || {};
+    //       }
+    //     });
+    // },
   },
   data() {
     return {
@@ -244,8 +232,7 @@ export default {
       currentPage: 1,
       modalbookid: 0,
       modalbooktitle: "title",
-      modalbookcoverimage:
-        "https://edit.org/images/cat/book-covers-big-2019101610.jpg",
+      modalbookcoverimage:"",
       selectMode: "single",
       fields: [
         { key: "bookcoverimage", label: "" },
