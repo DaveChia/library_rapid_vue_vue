@@ -22,7 +22,7 @@
                 v-if="this.pagetype !== 'Loans and Returns History'"
                 size="sm"
                 class="my-2 my-sm-0 submitbutton">Update</b-button>
-              <h3>{{ username }}</h3>
+              <h4 id="username-container">User: {{ username }}</h4>
             </b-navbar-nav>
           </b-collapse>
         </b-navbar>
@@ -63,8 +63,12 @@
 
         <template #cell(datecollected)="data">
           {{ data.value === "January 01 1970" ? "-" : data.value }}
-        </template>
+        </template> 
 
+        <template #cell(datecancelled)="data">
+          {{ data.value === "January 01 1970" ? "-" : data.value }}
+        </template>
+        
         <template #cell(dateduepaid)="data">
           {{ data.value === "January 01 1970" ? "-" : data.value }}
         </template>
@@ -272,17 +276,20 @@ export default {
           },
         })
         .then((response) => {
+          console.warn(response,this.searchuserid);
           if(response.data.error){
             clearSessionInstance();
             alert('Session Expired, please log in again.');
             this.$router.go();
           }else{
+            if(response.data.userresult){
+              this.username = response.data.userresult.name;
+            }
+            
             if (response.data.loanresult.length > 0) {
               this.items = response.data.loanresult;
-              this.username = response.data.userresult.name;
             } else {
               this.items = [];
-              this.username = "";
             }
             this.showPage = true;
           }
@@ -332,6 +339,7 @@ export default {
         { key: "bookname", label: "Name", sortable: true },
         { key: "bookid", label: "Book ID", sortable: true },
         { key: "dateborrowed", label: "Date Borrowed", sortable: true },
+        { key: "datecancelled", label: "Date Cancelled", sortable: true },
         { key: "datecollected", label: "Date Collected", sortable: true },
         { key: "datereturned", label: "Date Returned", sortable: true },
         { key: "datedued", label: "Date Dued", sortable: true },
@@ -400,5 +408,10 @@ export default {
 
 .page-title {
   max-width: 250px !important;
+}
+
+#username-container{
+  margin-left:20px;
+  line-height:40px;
 }
 </style>

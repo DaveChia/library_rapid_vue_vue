@@ -20,7 +20,7 @@
         <b-list-group-item
           v-on:click="sidebarNavigate('browse', $event)"
           v-if="userCapability && currentuser === 'User'"
-          class="d-flex align-items-center item">
+          class="d-flex align-items-center item browse">
           <b-avatar variant="primary" icon="bookshelf" class="mr-3"></b-avatar>
           <span class="mr-auto mr-tab-custom-title">Browse Library</span>
         </b-list-group-item>
@@ -28,7 +28,7 @@
         <b-list-group-item
           v-on:click="sidebarNavigate('booksonloan', $event)"
           v-if="userCapability && currentuser === 'User'"
-          class="d-flex align-items-center item">
+          class="d-flex align-items-center item booksonloan">
           <b-avatar variant="success" icon="clock" class="mr-3"></b-avatar>
           <span class="mr-auto mr-tab-custom-title">Loans History</span>
         </b-list-group-item>
@@ -36,7 +36,7 @@
         <b-list-group-item
           v-on:click="sidebarNavigate('duedBooks', $event)"
           v-if="userCapability && currentuser === 'User'"
-          class="d-flex align-items-center item">
+          class="d-flex align-items-center item duedBooks">
           <b-avatar variant="danger" icon="wallet-fill" class="mr-3"></b-avatar>
           <span class="mr-auto mr-tab-custom-title">Pay Overdues</span>
           <b-badge class="animated shake" v-if="this.duedbooksdata > 0">{{this.duedbooksdata}}</b-badge>
@@ -45,7 +45,7 @@
         <b-list-group-item
           v-on:click="sidebarNavigate('organizeloans', $event)"
           v-if="librarianCapability && currentuser === 'Librarian'"
-          class="d-flex align-items-center item">
+          class="d-flex align-items-center item organizeloans">
           <b-avatar
             variant="primary"
             icon="arrow-bar-down"
@@ -56,7 +56,7 @@
         <b-list-group-item
           v-on:click="sidebarNavigate('organizereturns', $event)"
           v-if="librarianCapability && currentuser === 'Librarian'"
-          class="d-flex align-items-center item">
+          class="d-flex align-items-center item organizereturns">
           <b-avatar
             variant="danger"
             icon="arrow-bar-up"
@@ -67,7 +67,7 @@
         <b-list-group-item
           v-on:click="sidebarNavigate('loanreturnhistory', $event)"
           v-if="librarianCapability && currentuser === 'Librarian'"
-          class="d-flex align-items-center item">
+          class="d-flex align-items-center item loanreturnhistory">
           <b-avatar variant="success" icon="clock" class="mr-3"></b-avatar>
           <span class="mr-auto mr-tab-custom-title">Loans History</span>
         </b-list-group-item>
@@ -87,6 +87,9 @@ export default {
     duedbooksdata: Number,
     currentuser: String,
   },
+  mounted(){
+    
+  },
   created() {
     this.librarianCapability = true;
     this.librarianCanOrganizeBooksCapability = true;
@@ -95,6 +98,7 @@ export default {
     this.userCapability = true;
 
     setTimeout(() => {
+      this.initialSidebarActive();
       busChangeUserType.$on("usertypechanged", () => {
         let currentActiveSideBarElement = document.querySelector(
           ".sidebar-active"
@@ -126,7 +130,15 @@ export default {
         }
       }
     },
-
+    // Highlight sidebar element when component loads
+    initialSidebarActive: function () {
+      let activeClass = '.'+this.$router.history.current.path.replace('/','');
+      if(this.$router.history.current.path === '/'){
+        activeClass = '.sidebar-dashboard';
+      }
+      const currentActiveSidebar = document.querySelector(activeClass);
+      currentActiveSidebar.classList.add("sidebar-active");
+    },
     // Highlight sidebar element when selected element is clicked or in route
     toggleActiveSideBarElement($event) {
       let currentActiveSideBarElement = document.querySelector(

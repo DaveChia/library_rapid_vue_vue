@@ -63,6 +63,7 @@ export default {
 <style scoped>
 #main-dashboard {
   height: 100%;
+  overflow-y:scroll;
 }
 
 #main-dashboard-cards {

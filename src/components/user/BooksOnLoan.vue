@@ -49,6 +49,10 @@
           {{ data.value === "January 01 1970" ? "-" : data.value }}
         </template>
 
+         <template #cell(datecancelled)="data">
+          {{ data.value === "January 01 1970" ? "-" : data.value }}
+        </template>
+
         <template #cell(datereturned)="data">
           {{ data.value === "January 01 1970" ? "-" : data.value }}
         </template>
@@ -170,6 +174,7 @@ export default {
         { key: "bookcoverimage", label: "" },
         { key: "bookname", label: "Name", sortable: true },
         { key: "dateborrowed", label: "Date Borrowed", sortable: true },
+        { key: "datecancelled", label: "Date Cancelled", sortable: true },
         { key: "datecollected", label: "Date Collected", sortable: true },
         { key: "datedued", label: "Date Dued", sortable: true },
         { key: "dateduepaid", label: "Date Dued Paid", sortable: true },

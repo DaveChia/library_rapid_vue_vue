@@ -273,7 +273,6 @@ export default {
 }
 
 #left {
-  background-color: red;
   width: fit-content;
 }
 
